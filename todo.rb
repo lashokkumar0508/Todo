@@ -1,4 +1,4 @@
- require "date"
+require "date"
 
 class Todo
   def initialize(text,due_date,completed)
@@ -8,45 +8,44 @@ class Todo
   end
 
   def to_displayable_string
-    if (Date.today == @due_date)
-        if(@completed == true)
-            string = "[X] #{@text}"
-        else
-            string = "[ ] #{@text}"
-        end
-    elsif (@completed == false) 
-        string = "[ ] #{@text} #{@due_date}"
-    end        
+    display_status =  @completed == true ? "[X]" : "[ ]"
+    display_date =  due_today? ? "" :  @due_date
+    "#{display_status} #{@text} #{display_date}"
   end
 
-  def due_date
-    @due_date
+  def overdue?
+    Date.today > @due_date
   end
-
+  def due_today?
+    Date.today == @due_date
+  end
+  def due_later?
+    Date.today < @due_date
+  end
 end
 
-class TodosList 
+class TodosList
   def initialize(todos)
     @todos = todos
   end
 
   def overdue
-    TodosList.new(@todos.filter { |todo| todo.due_date < Date.today })
+    TodosList.new(@todos.filter { |todo| todo.overdue? })
   end
 
   def due_today
-    TodosList.new(@todos.filter { |todo| todo.due_date == Date.today  })
-  end  
+    TodosList.new(@todos.filter { |todo| todo.due_today? })
+  end
   def due_later
-    TodosList.new(@todos.filter { |todo| todo.due_date > Date.today  })
-  end  
+    TodosList.new(@todos.filter { |todo| todo.due_later? })
+  end
 
   def add(todo)
     @todos.push(todo)
   end
 
   def to_displayable_list
-  @todos.map{|todo| todo.to_displayable_string}
+    @todos.map{|todo| todo.to_displayable_string}
   end
 end
 
@@ -78,4 +77,4 @@ puts "\n\n"
 
 puts "Due Later\n"
 puts todos_list.due_later.to_displayable_list
-puts "\n\n" 
+puts "\n\n"
